@@ -1,0 +1,44 @@
+
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres/new:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=threepounds
+      - POSTGRES_USER=threepounds
+      - POSTGRES_DB=threepounds_db
+
+  redis-3pounds:
+    image: redis:alpine
+    container_name: redis-3pounds
+    ports:
+      - 6379:6379
+
+  redis-commander:
+    container_name: redis-commander-3pounds
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis-3pounds:6379
+    ports:
+      - 5002:8081
+    depends_on:
+      - redis-3pounds
+
+  rabbitmq-3pounds:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-3pounds
+    ports:
+      - "5672:5672"   # RabbitMQ port
+      - "15672:15672" # Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  rabbitmq_data:
